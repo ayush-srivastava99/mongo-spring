@@ -1,8 +1,9 @@
 package com.ayush.mongodemo.controller;
 
 import com.ayush.mongodemo.domain.Product;
+import com.ayush.mongodemo.dto.ProductDTO;
+import com.ayush.mongodemo.response.ProductResponse;
 import com.ayush.mongodemo.service.ProductService;
-import jakarta.websocket.server.PathParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,26 +18,26 @@ public class Controller {
     private ProductService service;
 
     @PostMapping("/")
-    public ResponseEntity<String> save(@RequestBody Product product)
-    {
+    public ResponseEntity<String> save(@RequestBody ProductDTO productDTO) {
+        Product product = Product.of(productDTO);
         return ResponseEntity.ok(service.save(product));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getById(@PathVariable("id") String id)
-    {
-        return ResponseEntity.ok(service.findById(id));
+    public ResponseEntity<ProductResponse> getById(@PathVariable("id") String id) {
+        Product product=service.findById(id);
+        return ResponseEntity.ok(ProductResponse.of(product));
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<Product>> getAll()
-    {
-        return ResponseEntity.ok(service.findAll());
+    public ResponseEntity<List<ProductResponse>> getAll() {
+        List<Product> productList=service.findAll();
+        List<ProductResponse> responseList=productList.stream().map(ProductResponse::of).toList();
+        return ResponseEntity.ok(responseList);
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Void> delete(@PathVariable("id") String id)
-    {
+    public ResponseEntity<Void> delete(@PathVariable("id") String id) {
         service.delete(id);
         return ResponseEntity.accepted().build();
     }
